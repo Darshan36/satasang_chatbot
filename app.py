@@ -115,7 +115,11 @@ TOPIC_NAMES = [t["name"] for t in TOPICS]
 TOPIC_IDX = {t["name"]: i for i, t in enumerate(TOPICS)}
 
 # Sources present in the data, for the UI filter (value -> display label).
-SOURCE_LABELS = {"sabha": "Akshar Sarjan Sabha", "amrutpathey": "Amrut Pathey"}
+SOURCE_LABELS = {
+    "sabha": "Akshar Sarjan Sabha",
+    "amrutpathey": "Amrut Pathey",
+    "aksharjatan": "Akshar Jatan",
+}
 SOURCES = [
     {"value": v, "label": SOURCE_LABELS.get(v, v.title())}
     for v in sorted({s.get("source", "sabha") for s in STORIES})
