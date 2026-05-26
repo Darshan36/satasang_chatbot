@@ -17,7 +17,7 @@ import sys
 DATA = "recategorized_stories.json"
 TOPICS = "topics.json"
 BT = "_bt"
-SOURCES = ["amrutpathey", "samarthnisadhuta", "aksharjatan"]
+SOURCES = ["amrutpathey", "samarthnisadhuta", "aksharjatan", "sabha"]
 
 
 def load():
