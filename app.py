@@ -119,6 +119,7 @@ SOURCE_LABELS = {
     "sabha": "Akshar Sarjan Sabha",
     "amrutpathey": "Amrut Pathey",
     "aksharjatan": "Akshar Jatan",
+    "samarthnisadhuta": "Samarth ni Sadhuta",
 }
 SOURCES = [
     {"value": v, "label": SOURCE_LABELS.get(v, v.title())}

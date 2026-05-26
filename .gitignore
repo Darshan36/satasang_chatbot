@@ -29,3 +29,8 @@ templates/*.png
 generate_report.js
 extract_summaries.js
 full_report_generator.js
+
+# source books / scanned PDFs (never public)
+*.pdf
+samarthnisadhuta.txt
+_pg*.png
