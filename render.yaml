@@ -1,0 +1,19 @@
+# Render Blueprint — deploys the Prasang Explorer Flask app as a web service.
+# In Render: New + -> Blueprint -> connect this repo -> set the two API keys.
+services:
+  - type: web
+    name: prasang-explorer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Threaded workers: /ask blocks on external API calls, so concurrency keeps the
+    # instance responsive to other requests + Render health checks (avoids no-server 404s).
+    # --preload shares the embedding index across workers (copy-on-write) to save memory.
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread --preload --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: GEMINI_API_KEY   # set in the Render dashboard (secret) — use a ROTATED key
+        sync: false
+      - key: GROQ_API_KEY     # set in the Render dashboard (secret) — use a ROTATED key
+        sync: false

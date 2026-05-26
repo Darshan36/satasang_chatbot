@@ -1,0 +1,26 @@
+# ---- Secrets: never commit ----
+.env
+# legacy script with a hardcoded API key (superseded by app.py + config.py)
+ai_chatbot.py
+
+# ---- Python ----
+__pycache__/
+*.pyc
+
+# ---- Generated data: served from the private B2 bucket, never public ----
+*.json
+*.npy
+*.npz
+
+# ---- Personal Telegram export: not part of the app ----
+messages.html
+report.md
+detailed_report.md
+photos/
+images/
+css/
+js/
+templates/*.png
+generate_report.js
+extract_summaries.js
+full_report_generator.js

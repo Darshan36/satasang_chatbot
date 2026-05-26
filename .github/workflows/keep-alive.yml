@@ -1,0 +1,27 @@
+name: Keep Render app awake
+
+# Pings the deployed home page so Render's free instance doesn't spin down
+# (it sleeps after ~15 min idle). Hits "/" only — never "/ask" — so it uses
+# no Gemini/Groq quota. GitHub may delay/skip scheduled runs under load, so this
+# is best-effort warmth, not a hard uptime guarantee.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes (UTC)
+  workflow_dispatch: {}        # allows manual "Run workflow" from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the app
+        run: |
+          URL="https://prasang-explorer.onrender.com/"
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo "000")
+            echo "Attempt $i -> HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 20   # first hit may be a cold start; give it time, then retry
+          done
+          echo "All ping attempts failed"
+          exit 1

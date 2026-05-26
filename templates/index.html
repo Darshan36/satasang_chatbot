@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akshar Sarjan Prasang Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --accent: #ffd700;
+            --bg: #f5f5f5;
+            --text: #333;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex-grow: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: #283593;
+        }
+
+        .topics-label {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .topics {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 2rem;
+            max-height: 130px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .topics.expanded { max-height: none; }
+
+        .category-tag {
+            display: inline-block;
+            background: #e8eaf6;
+            color: var(--primary);
+            padding: 0.45rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: 1px solid transparent;
+        }
+
+        .category-tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .toggle-topics {
+            display: block;
+            margin: 0 auto 2rem;
+            background: none;
+            color: var(--primary);
+            font-size: 0.8rem;
+            padding: 0.3rem 1rem;
+        }
+        .toggle-topics:hover { background: none; text-decoration: underline; transform: none; }
+
+        .results-info {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: none;
+        }
+        .results-info .hint { font-weight: 400; color: #888; font-size: 0.85rem; }
+
+        .story-card {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-left: 8px solid var(--accent);
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+        .card-head .sabha { font-weight: 600; color: var(--primary); font-size: 1.05rem; }
+        .card-head .match {
+            font-size: 0.72rem;
+            background: var(--accent);
+            color: #5a4a00;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .chips { margin-bottom: 0.75rem; }
+        .topic-chip {
+            display: inline-block;
+            background: #f0f0f0;
+            color: #555;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin: 2px 4px 2px 0;
+        }
+
+        .body { white-space: pre-wrap; line-height: 1.8; }
+
+        .copy-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 14px;
+            background: #f0f0f0;
+            color: #666;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .copy-btn:hover { opacity: 1; background: var(--primary); color: white; transform: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading { display: none; text-align: center; margin: 2rem; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        footer { text-align: center; padding: 1.5rem; font-size: 0.9rem; color: #777; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Akshar Sarjan Prasang Explorer</h1>
+        <p>Search prasangs by meaning &mdash; or browse a topic</p>
+    </header>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="userInput" placeholder="Try: dealing with exam stress, waking up early, anger...">
+            <button onclick="search()">Search</button>
+        </div>
+
+        <div class="topics-label">Browse by topic</div>
+        <div class="topics" id="topics">
+            {% for t in topics %}
+                <span class="category-tag" title="{{ t.description }}" onclick="browse('{{ t.name|replace("'", "\\'") }}')">{{ t.name }}</span>
+            {% endfor %}
+        </div>
+        <button class="toggle-topics" id="toggleTopics" onclick="toggleTopics()">Show all topics ▾</button>
+
+        <div id="loading" class="loading">
+            <div class="loader"></div>
+            <p>Finding the most relevant prasangs...</p>
+        </div>
+
+        <div id="resultsInfo" class="results-info"></div>
+        <div id="storiesContainer"></div>
+    </div>
+
+    <footer>
+        &copy; 2026 Akshar Sarjan Sabha | Semantic search powered by Gemini embeddings
+    </footer>
+
+    <script>
+        function toggleTopics() {
+            const t = document.getElementById('topics');
+            const btn = document.getElementById('toggleTopics');
+            t.classList.toggle('expanded');
+            btn.textContent = t.classList.contains('expanded') ? 'Show fewer topics ▴' : 'Show all topics ▾';
+        }
+
+        function browse(topic) {
+            document.getElementById('userInput').value = topic;
+            run({ tag: topic });
+        }
+
+        function search() {
+            const query = document.getElementById('userInput').value.trim();
+            if (!query) return;
+            run({ query: query });
+        }
+
+        async function run(payload) {
+            const container = document.getElementById('storiesContainer');
+            const info = document.getElementById('resultsInfo');
+            const loading = document.getElementById('loading');
+
+            container.innerHTML = '';
+            info.style.display = 'none';
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                loading.style.display = 'none';
+
+                if (data.error) {
+                    info.textContent = 'Error: ' + data.error;
+                    info.style.display = 'block';
+                    return;
+                }
+
+                if (data.stories && data.stories.length > 0) {
+                    let msg;
+                    if (data.mode === 'browse') {
+                        msg = `${data.count} prasang(s) under “${data.label}”`;
+                    } else {
+                        msg = `Top ${data.count} prasang(s) for “${data.label}”`;
+                        if (data.low_confidence) {
+                            msg += ` <span class="hint">— no strong match, showing the closest</span>`;
+                        }
+                    }
+                    info.innerHTML = msg;
+                    info.style.display = 'block';
+
+                    data.stories.forEach(storyHtml => {
+                        const card = document.createElement('div');
+                        card.className = 'story-card';
+                        card.innerHTML = storyHtml;
+                        const copy = document.createElement('div');
+                        copy.className = 'copy-btn';
+                        copy.textContent = 'Copy';
+                        copy.onclick = () => {
+                            const text = card.querySelector('.body').innerText;
+                            navigator.clipboard.writeText(text);
+                            copy.textContent = 'Copied!';
+                            setTimeout(() => copy.textContent = 'Copy', 1500);
+                        };
+                        card.appendChild(copy);
+                        container.appendChild(card);
+                    });
+                } else {
+                    info.textContent = 'No prasangs found. Try a different wording or topic.';
+                    info.style.display = 'block';
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                alert('Error connecting to the server.');
+            }
+        }
+
+        document.getElementById('userInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') search();
+        });
+    </script>
+</body>
+</html>
