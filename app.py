@@ -114,7 +114,19 @@ STORIES, EMB, TOPICS, TOPIC_EMB = _load()
 TOPIC_NAMES = [t["name"] for t in TOPICS]
 TOPIC_IDX = {t["name"]: i for i, t in enumerate(TOPICS)}
 
+# Sources present in the data, for the UI filter (value -> display label).
+SOURCE_LABELS = {"sabha": "Akshar Sarjan Sabha", "amrutpathey": "Amrut Pathey"}
+SOURCES = [
+    {"value": v, "label": SOURCE_LABELS.get(v, v.title())}
+    for v in sorted({s.get("source", "sabha") for s in STORIES})
+]
+
 GLOSSARY = _opt_json(GLOSSARY_FILE, {"terms": []}).get("terms", [])
+
+
+def source_ok(story, source):
+    """True if the story matches the requested source ('' / 'all' = any)."""
+    return not source or source == "all" or story.get("source", "sabha") == source
 
 
 def glossary_expansions(query):
@@ -186,7 +198,7 @@ def favicon():
 
 @app.route("/")
 def index():
-    return render_template("index.html", topics=TOPICS)
+    return render_template("index.html", topics=TOPICS, sources=SOURCES)
 
 
 @app.route("/ask", methods=["POST"])
@@ -195,10 +207,12 @@ def ask():
         data = request.get_json(silent=True) or {}
         tag = (data.get("tag") or "").strip()
         query = (data.get("query") or "").strip()
+        source = (data.get("source") or "").strip()  # '' / 'all' = every source
 
         # --- Browse mode: filter by topic tag, no API call ---
         if tag:
-            idxs = [i for i, s in enumerate(STORIES) if tag in s.get("topics", [])]
+            idxs = [i for i, s in enumerate(STORIES)
+                    if tag in s.get("topics", []) and source_ok(s, source)]
             if TOPIC_EMB is not None and tag in TOPIC_IDX:
                 tvec = TOPIC_EMB[TOPIC_IDX[tag]]
                 idxs.sort(key=lambda i: -float(EMB[i] @ tvec))
@@ -225,7 +239,7 @@ def ask():
                     s2 = EMB @ embed_query(enriched)
                     if float(s2.max()) > float(sims.max()):
                         sims = s2
-        order = np.argsort(-sims)[:FETCH_K]
+        order = [i for i in np.argsort(-sims) if source_ok(STORIES[i], source)][:FETCH_K]
 
         matched = quick_tag_match(query)
         scored = []

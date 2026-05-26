@@ -12,6 +12,10 @@ __pycache__/
 *.npy
 *.npz
 
+# ---- Source books / raw inputs: not part of the app ----
+amruthpathey.txt
+*.book.txt
+
 # ---- Personal Telegram export: not part of the app ----
 messages.html
 report.md

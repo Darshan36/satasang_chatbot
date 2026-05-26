@@ -56,6 +56,7 @@ def build_stories():
         out.append({
             "session_topic": (s.get("session_topic") or "").strip(),
             "content": content,
+            "source": s.get("source") or "sabha",
             "hash": h,
         })
     with open(STORIES_OUT, "w", encoding="utf-8") as f:

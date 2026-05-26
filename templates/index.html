@@ -204,6 +204,24 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        .source-row {
+            text-align: center;
+            margin: -0.5rem 0 1.5rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .source-row label { margin-right: 8px; }
+        .source-row select {
+            font-family: inherit;
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            background: var(--white);
+            color: var(--primary);
+            cursor: pointer;
+        }
+
         footer { text-align: center; padding: 1.5rem; font-size: 0.9rem; color: #777; }
     </style>
 </head>
@@ -218,6 +236,16 @@
         <div class="search-box">
             <input type="text" id="userInput" placeholder="Try: dealing with exam stress, waking up early, anger...">
             <button onclick="search()">Search</button>
+        </div>
+
+        <div class="source-row">
+            <label for="sourceFilter">Source:</label>
+            <select id="sourceFilter" onchange="reapply()">
+                <option value="all">All sources</option>
+                {% for s in sources %}
+                <option value="{{ s.value }}">{{ s.label }}</option>
+                {% endfor %}
+            </select>
         </div>
 
         <div class="topics-label">Browse by topic</div>
@@ -249,15 +277,27 @@
             btn.textContent = t.classList.contains('expanded') ? 'Show fewer topics ▴' : 'Show all topics ▾';
         }
 
+        let lastAction = null;  // remember last {tag|query} so changing source re-runs it
+
+        function currentSource() {
+            return document.getElementById('sourceFilter').value;
+        }
+
         function browse(topic) {
             document.getElementById('userInput').value = topic;
-            run({ tag: topic });
+            lastAction = { tag: topic };
+            run({ tag: topic, source: currentSource() });
         }
 
         function search() {
             const query = document.getElementById('userInput').value.trim();
             if (!query) return;
-            run({ query: query });
+            lastAction = { query: query };
+            run({ query: query, source: currentSource() });
+        }
+
+        function reapply() {
+            if (lastAction) run({ ...lastAction, source: currentSource() });
         }
 
         async function run(payload) {
