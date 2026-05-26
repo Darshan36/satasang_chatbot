@@ -31,7 +31,7 @@ def parse(path, label):
     records = []
     for b in blocks:
         body = re.sub(r"^SESSION:\s*", "", b).strip()
-        body = re.sub(r"^[૦-૯0-9]+\s*[:：]\s*", "", body).strip()  # drop leading "<num> :"
+        body = re.sub(r"^[૦-૯0-9]+\s*[:：.]\s*", "", body).strip()  # drop leading "<num> ." / "<num> :"
         if len(body) < 20:
             continue
         records.append({"session_topic": label, "content": body})
