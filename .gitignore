@@ -35,3 +35,5 @@ full_report_generator.js
 samarthnisadhuta.txt
 _pg*.png
 *.png
+_bt/
+book_tags*.json
