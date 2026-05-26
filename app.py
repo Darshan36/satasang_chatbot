@@ -188,9 +188,17 @@ def build_card(story, sim=None):
         f"<span class='topic-chip'>{html.escape(t)}</span>" for t in story.get("topics", [])
     )
     badge = f"<span class='match'>{round(sim * 100)}% match</span>" if sim is not None else ""
+    copy_btn = (
+        "<button class='copy-btn' onclick='copyCard(this)' title='Copy' aria-label='Copy prasang'>"
+        "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' "
+        "stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>"
+        "<rect x='9' y='9' width='13' height='13' rx='2'/>"
+        "<path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg></button>"
+    )
     body = html.escape(story["content"])
     return (
-        f"<div class='card-head'><span class='sabha'>{topic}</span>{badge}</div>"
+        f"<div class='card-head'><span class='sabha'>{topic}</span>"
+        f"<span class='card-meta'>{badge}{copy_btn}</span></div>"
         f"<div class='chips'>{chips}</div>"
         f"<div class='body'>{body}</div>"
     )

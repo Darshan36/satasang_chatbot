@@ -4,272 +4,384 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akshar Sarjan Prasang Explorer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Poppins for Latin/UI, Noto Sans Gujarati for Gujarati script (matched aesthetic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Gujarati:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1a237e;
+            --primary-light: #3949ab;
             --accent: #ffd700;
-            --bg: #f5f5f5;
-            --text: #333;
+            --bg: #f4f5fa;
+            --text: #2b2b35;
+            --muted: #6b6f80;
             --white: #ffffff;
+            --border: #e6e8f2;
+            --chip-bg: #eceefb;
+            --radius: 16px;
+            --pad-x: 1.5rem;          /* responsive container padding */
+            /* Latin -> Poppins; Gujarati -> Noto Sans Gujarati, then native system Gujarati
+               (Shruti on Windows) for sharp rendering + fast fallback on mobile */
+            --font: 'Poppins', 'Noto Sans Gujarati', -apple-system, BlinkMacSystemFont,
+                    'Segoe UI', 'Shruti', system-ui, sans-serif;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
+            font-family: var(--font);
+            background: var(--bg);
             color: var(--text);
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* ---------- Header / hero ---------- */
         header {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: var(--white);
-            padding: 2rem;
+            padding: 2.75rem 1.5rem 2.25rem;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(26,35,126,0.18);
+        }
+        header h1 {
+            margin: 0;
+            font-weight: 700;
+            font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+        header h1 .accent { color: var(--accent); }
+        header p {
+            margin: 0.6rem 0 0;
+            font-weight: 300;
+            font-size: clamp(0.82rem, 2.2vw, 1rem);
+            opacity: 0.85;
+            letter-spacing: 0.2px;
         }
 
+        /* ---------- Layout ---------- */
         .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            flex-grow: 1;
             width: 100%;
-            box-sizing: border-box;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 2rem var(--pad-x) 1rem;
+            flex-grow: 1;
         }
+        .toolbar { max-width: 720px; margin: 0 auto; }   /* unified width for search + filter */
 
+        /* ---------- Search ---------- */
         .search-box {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
             background: var(--white);
-            padding: 1rem;
-            border-radius: 50px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
+            padding: 6px 6px 6px 8px;        /* balanced; visual padding comes from input/button */
+            border-radius: 999px;
+            box-shadow: 0 8px 24px rgba(26,35,126,0.08);
+            border: 1px solid var(--border);
         }
-
-        input[type="text"] {
-            flex-grow: 1;
+        .search-box input {
+            flex: 1 1 auto;
+            min-width: 0;
             border: none;
             outline: none;
-            font-size: 1.1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
+            font-family: var(--font);
+            font-size: 1.05rem;
+            padding: 0.7rem 1rem;
+            background: transparent;
+            color: var(--text);
+            border-radius: 999px;
         }
-
-        button {
-            background-color: var(--primary);
-            color: white;
+        .search-box button {
+            flex: 0 0 auto;
+            background: var(--primary);
+            color: var(--white);
             border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
+            padding: 0.7rem 1.6rem;
+            border-radius: 999px;
             cursor: pointer;
+            font-family: var(--font);
             font-weight: 600;
-            transition: transform 0.2s;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .search-box button:hover { background: var(--primary-light); }
+        .search-box button:active { transform: scale(0.97); }
+
+        /* ---------- Source filter ---------- */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin: 0.9rem 2px 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .filter-row label { font-weight: 500; }
+        .filter-row select {
+            font-family: var(--font);
+            font-size: 0.85rem;
+            padding: 0.45rem 2rem 0.45rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--white) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231a237e' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 0.7rem center;
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            appearance: none;
         }
 
-        button:hover {
-            transform: scale(1.05);
-            background-color: #283593;
-        }
-
+        /* ---------- Topics ---------- */
         .topics-label {
             text-align: center;
-            font-size: 0.8rem;
-            color: #888;
+            font-size: 0.72rem;
+            color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
+            letter-spacing: 1.5px;
+            margin: 2rem 0 0.8rem;
+            font-weight: 600;
         }
-
         .topics {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 2rem;
-            max-height: 130px;
-            overflow-y: auto;
-            padding: 4px;
+            gap: 12px 8px;                 /* row-gap >= column-gap (less vertical cramping) */
+            max-height: 124px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
         }
-
-        .topics.expanded { max-height: none; }
-
+        .topics.expanded { max-height: 1500px; }
         .category-tag {
-            display: inline-block;
-            background: #e8eaf6;
+            display: inline-flex;
+            align-items: center;
+            background: var(--chip-bg);
             color: var(--primary);
-            padding: 0.45rem 0.9rem;
-            border-radius: 20px;
-            font-size: 0.82rem;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.25s;
-            border: 1px solid transparent;
+            border: 1.5px solid transparent;
+            transition: all 0.2s;
+            user-select: none;
         }
-
         .category-tag:hover {
-            background: var(--primary);
-            color: white;
+            background: #dfe3fb;
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
         }
-
+        .category-tag.active {                /* strong, accessible active state */
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(26,35,126,0.25);
+        }
         .toggle-topics {
             display: block;
-            margin: 0 auto 2rem;
-            background: none;
+            margin: 1rem auto 2.5rem;
+            background: transparent;
             color: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-family: var(--font);
             font-size: 0.8rem;
-            padding: 0.3rem 1rem;
+            font-weight: 500;
+            padding: 0.45rem 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .toggle-topics:hover { background: none; text-decoration: underline; transform: none; }
+        .toggle-topics:hover { background: var(--chip-bg); }
 
+        /* ---------- Results ---------- */
         .results-info {
-            margin-bottom: 1rem;
+            margin: 0 2px 1.2rem;
             font-weight: 600;
             color: var(--primary);
+            font-size: 0.95rem;
             display: none;
         }
-        .results-info .hint { font-weight: 400; color: #888; font-size: 0.85rem; }
+        .results-info .hint { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
 
         .story-card {
             background: var(--white);
-            padding: 1.5rem 2rem;
-            border-radius: 15px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border-left: 8px solid var(--accent);
-            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            padding: 1.5rem 1.6rem 1.3rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.4rem;
+            border: 1px solid var(--border);
+            border-left: 6px solid var(--accent);
+            box-shadow: 0 6px 22px rgba(26,35,126,0.07);
+            animation: fadeIn 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .card-head {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 0.5rem;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 0.7rem;
         }
-        .card-head .sabha { font-weight: 600; color: var(--primary); font-size: 1.05rem; }
-        .card-head .match {
-            font-size: 0.72rem;
-            background: var(--accent);
-            color: #5a4a00;
-            padding: 2px 8px;
-            border-radius: 10px;
+        .card-head .sabha {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.02rem;
+            line-height: 1.3;
+        }
+        .card-meta { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+        .card-meta .match {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #fff6c2;
+            color: #7a5c00;
+            padding: 3px 9px;
+            border-radius: 999px;
             white-space: nowrap;
         }
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            color: var(--muted);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 0 0 auto;
+        }
+        .copy-btn:hover { background: var(--primary); color: var(--white); border-color: var(--primary); }
+        .copy-btn.copied { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
 
-        .chips { margin-bottom: 0.75rem; }
+        .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.85rem; }
         .topic-chip {
             display: inline-block;
-            background: #f0f0f0;
-            color: #555;
-            font-size: 0.72rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin: 2px 4px 2px 0;
-        }
-
-        .body { white-space: pre-wrap; line-height: 1.8; }
-
-        .copy-btn {
-            position: absolute;
-            bottom: 12px;
-            right: 14px;
-            background: #f0f0f0;
-            color: #666;
-            padding: 4px 10px;
+            background: var(--chip-bg);
+            color: var(--primary-light);
             font-size: 0.7rem;
-            border-radius: 5px;
-            cursor: pointer;
-            opacity: 0.7;
+            font-weight: 500;
+            padding: 3px 9px;
+            border-radius: 999px;
         }
-        .copy-btn:hover { opacity: 1; background: var(--primary); color: white; transform: none; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .body {
+            white-space: pre-wrap;
+            line-height: 1.85;             /* roomy for Gujarati legibility */
+            font-size: 1rem;
+            color: #34343f;
         }
 
-        .loading { display: none; text-align: center; margin: 2rem; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .loading { display: none; text-align: center; margin: 2.5rem; }
         .loader {
-            border: 4px solid #f3f3f3;
+            border: 4px solid #e6e8f2;
             border-top: 4px solid var(--primary);
             border-radius: 50%;
-            width: 40px; height: 40px;
-            animation: spin 1s linear infinite;
+            width: 38px; height: 38px;
+            animation: spin 0.9s linear infinite;
             display: inline-block;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading p { color: var(--muted); font-size: 0.9rem; margin-top: 0.8rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .source-row {
-            text-align: center;
-            margin: -0.5rem 0 1.5rem;
-            font-size: 0.9rem;
-            color: #555;
-        }
-        .source-row label { margin-right: 8px; }
-        .source-row select {
-            font-family: inherit;
-            font-size: 0.9rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            border: 1px solid #ccc;
-            background: var(--white);
-            color: var(--primary);
-            cursor: pointer;
-        }
+        footer { text-align: center; padding: 1.5rem; font-size: 0.82rem; color: var(--muted); }
 
-        footer { text-align: center; padding: 1.5rem; font-size: 0.9rem; color: #777; }
+        /* ---------- Mobile (<=768px) ---------- */
+        @media (max-width: 768px) {
+            :root { --pad-x: 1rem; }
+            header { padding: 2rem 1rem 1.75rem; }
+            header h1 { font-size: 1.7rem; }   /* avoids awkward 1-2 word wrapping */
+            .container { padding-top: 1.5rem; }
+
+            /* Search: stack full-width for comfortable thumb reach */
+            .search-box { flex-direction: column; gap: 10px; padding: 10px; border-radius: 18px; }
+            .search-box input { width: 100%; min-height: 48px; font-size: 1rem; padding: 0.7rem 0.95rem; }
+            .search-box button { width: 100%; min-height: 48px; }
+
+            .filter-row { justify-content: center; }
+            .filter-row select { min-height: 48px; }
+
+            /* Topics: horizontal swipe row (preserves vertical space, content stays above the fold) */
+            .topics-label { margin-top: 1.6rem; }
+            .topics {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                max-height: none;
+                justify-content: flex-start;
+                gap: 8px;
+                padding: 2px 0 10px;
+                -webkit-overflow-scrolling: touch;   /* momentum scroll on iOS */
+                scrollbar-width: none;
+            }
+            .topics::-webkit-scrollbar { display: none; }
+            .category-tag { flex: 0 0 auto; white-space: nowrap; min-height: 44px; padding: 0.55rem 1rem; }
+            .toggle-topics { display: none; }   /* horizontal scroll reveals all topics */
+
+            .story-card { padding: 1.2rem 1.15rem 1rem; border-radius: 14px; }
+            .card-head .sabha { font-size: 0.95rem; }
+            .body { font-size: 1rem; line-height: 1.95; }   /* extra leading for Gujarati matras */
+            .copy-btn { width: 44px; height: 44px; }        /* 44px+ tap target */
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Akshar Sarjan Prasang Explorer</h1>
+        <h1>Akshar Sarjan <span class="accent">Prasang</span> Explorer</h1>
         <p>Search prasangs by meaning &mdash; or browse a topic</p>
     </header>
 
     <div class="container">
-        <div class="search-box">
-            <input type="text" id="userInput" placeholder="Try: dealing with exam stress, waking up early, anger...">
-            <button onclick="search()">Search</button>
-        </div>
-
-        <div class="source-row">
-            <label for="sourceFilter">Source:</label>
-            <select id="sourceFilter" onchange="reapply()">
-                <option value="all">All sources</option>
-                {% for s in sources %}
-                <option value="{{ s.value }}">{{ s.label }}</option>
-                {% endfor %}
-            </select>
+        <div class="toolbar">
+            <div class="search-box">
+                <input type="text" id="userInput" placeholder="Try: exam stress, waking up early, kartaharta…" autocomplete="off">
+                <button onclick="search()">Search</button>
+            </div>
+            <div class="filter-row">
+                <label for="sourceFilter">Source</label>
+                <select id="sourceFilter" onchange="reapply()">
+                    <option value="all">All sources</option>
+                    {% for s in sources %}
+                    <option value="{{ s.value }}">{{ s.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
 
         <div class="topics-label">Browse by topic</div>
         <div class="topics" id="topics">
             {% for t in topics %}
-                <span class="category-tag" title="{{ t.description }}" onclick="browse('{{ t.name|replace("'", "\\'") }}')">{{ t.name }}</span>
+                <span class="category-tag" title="{{ t.description }}"
+                      onclick="browse(this, '{{ t.name|replace("'", "\\'") }}')">{{ t.name }}</span>
             {% endfor %}
         </div>
         <button class="toggle-topics" id="toggleTopics" onclick="toggleTopics()">Show all topics ▾</button>
 
         <div id="loading" class="loading">
             <div class="loader"></div>
-            <p>Finding the most relevant prasangs...</p>
+            <p>Finding the most relevant prasangs…</p>
         </div>
 
         <div id="resultsInfo" class="results-info"></div>
         <div id="storiesContainer"></div>
     </div>
 
-    <footer>
-        &copy; 2026 Akshar Sarjan Sabha | Semantic search powered by Gemini embeddings
-    </footer>
+    <footer>&copy; 2026 Akshar Sarjan Sabha &middot; Semantic search powered by Gemini embeddings</footer>
 
     <script>
+        let lastAction = null;
+
+        function currentSource() { return document.getElementById('sourceFilter').value; }
+
+        function clearActiveChip() {
+            document.querySelectorAll('.category-tag.active').forEach(e => e.classList.remove('active'));
+        }
+
         function toggleTopics() {
             const t = document.getElementById('topics');
             const btn = document.getElementById('toggleTopics');
@@ -277,14 +389,12 @@
             btn.textContent = t.classList.contains('expanded') ? 'Show fewer topics ▴' : 'Show all topics ▾';
         }
 
-        let lastAction = null;  // remember last {tag|query} so changing source re-runs it
-
-        function currentSource() {
-            return document.getElementById('sourceFilter').value;
-        }
-
-        function browse(topic) {
-            document.getElementById('userInput').value = topic;
+        // Browsing a topic: highlight the chip, clear the search box (so it's not mistaken
+        // for a typed query), and fetch by tag.
+        function browse(el, topic) {
+            clearActiveChip();
+            el.classList.add('active');
+            document.getElementById('userInput').value = '';
             lastAction = { tag: topic };
             run({ tag: topic, source: currentSource() });
         }
@@ -292,80 +402,102 @@
         function search() {
             const query = document.getElementById('userInput').value.trim();
             if (!query) return;
+            clearActiveChip();
             lastAction = { query: query };
             run({ query: query, source: currentSource() });
         }
 
-        function reapply() {
-            if (lastAction) run({ ...lastAction, source: currentSource() });
+        function reapply() { if (lastAction) run({ ...lastAction, source: currentSource() }); }
+
+        function copyCard(btn) {
+            const card = btn.closest('.story-card');
+            const text = card.querySelector('.body').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.classList.add('copied');
+                setTimeout(() => btn.classList.remove('copied'), 1400);
+            });
+        }
+
+        // ---- Lazy / infinite-scroll rendering (keeps large result sets snappy on mobile) ----
+        let pending = [];
+        let observer = null;
+        const CHUNK = 8;
+
+        function renderChunk(container, sentinel) {
+            pending.splice(0, CHUNK).forEach(htmlStr => {
+                const card = document.createElement('div');
+                card.className = 'story-card';
+                card.innerHTML = htmlStr;
+                container.insertBefore(card, sentinel);
+            });
+        }
+
+        function setupCards(stories) {
+            const container = document.getElementById('storiesContainer');
+            container.innerHTML = '';
+            if (observer) { observer.disconnect(); observer = null; }
+            pending = stories.slice();
+
+            const sentinel = document.createElement('div');
+            sentinel.style.height = '1px';
+            container.appendChild(sentinel);
+            renderChunk(container, sentinel);            // first chunk immediately
+
+            if (pending.length) {
+                observer = new IntersectionObserver(entries => {
+                    if (entries[0].isIntersecting) {
+                        renderChunk(container, sentinel);
+                        if (!pending.length) { observer.disconnect(); observer = null; sentinel.remove(); }
+                    }
+                }, { rootMargin: '400px' });
+                observer.observe(sentinel);
+            } else {
+                sentinel.remove();
+            }
         }
 
         async function run(payload) {
             const container = document.getElementById('storiesContainer');
             const info = document.getElementById('resultsInfo');
             const loading = document.getElementById('loading');
-
             container.innerHTML = '';
             info.style.display = 'none';
             loading.style.display = 'block';
 
             try {
-                const response = await fetch('/ask', {
+                const res = await fetch('/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await response.json();
+                const data = await res.json();
                 loading.style.display = 'none';
 
-                if (data.error) {
-                    info.textContent = 'Error: ' + data.error;
-                    info.style.display = 'block';
-                    return;
-                }
+                if (data.error) { info.textContent = 'Error: ' + data.error; info.style.display = 'block'; return; }
 
-                if (data.stories && data.stories.length > 0) {
+                if (data.stories && data.stories.length) {
                     let msg;
                     if (data.mode === 'browse') {
-                        msg = `${data.count} prasang(s) under “${data.label}”`;
+                        msg = `<b>${data.count}</b> prasang(s) under “${data.label}”`;
                     } else {
-                        msg = `Top ${data.count} prasang(s) for “${data.label}”`;
-                        if (data.low_confidence) {
-                            msg += ` <span class="hint">— no strong match, showing the closest</span>`;
-                        }
+                        msg = `Top <b>${data.count}</b> result(s) for “${data.label}”`;
+                        if (data.low_confidence) msg += ` <span class="hint">— no strong match, showing the closest</span>`;
                     }
                     info.innerHTML = msg;
                     info.style.display = 'block';
-
-                    data.stories.forEach(storyHtml => {
-                        const card = document.createElement('div');
-                        card.className = 'story-card';
-                        card.innerHTML = storyHtml;
-                        const copy = document.createElement('div');
-                        copy.className = 'copy-btn';
-                        copy.textContent = 'Copy';
-                        copy.onclick = () => {
-                            const text = card.querySelector('.body').innerText;
-                            navigator.clipboard.writeText(text);
-                            copy.textContent = 'Copied!';
-                            setTimeout(() => copy.textContent = 'Copy', 1500);
-                        };
-                        card.appendChild(copy);
-                        container.appendChild(card);
-                    });
+                    setupCards(data.stories);   // lazy render in chunks (mobile perf)
                 } else {
-                    info.textContent = 'No prasangs found. Try a different wording or topic.';
+                    info.textContent = 'No prasangs found. Try different wording or another topic.';
                     info.style.display = 'block';
                 }
-            } catch (error) {
+            } catch (e) {
                 loading.style.display = 'none';
-                alert('Error connecting to the server.');
+                info.textContent = 'Error connecting to the server.';
+                info.style.display = 'block';
             }
         }
 
-        document.getElementById('userInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') search();
-        });
+        document.getElementById('userInput').addEventListener('keypress', e => { if (e.key === 'Enter') search(); });
     </script>
 </body>
 </html>
