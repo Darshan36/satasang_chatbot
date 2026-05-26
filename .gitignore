@@ -15,6 +15,7 @@ __pycache__/
 # ---- Source books / raw inputs: not part of the app ----
 amruthpathey.txt
 aksharjatan.txt
+sabha.txt
 *.book.txt
 
 # ---- Personal Telegram export: not part of the app ----
