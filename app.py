@@ -126,6 +126,16 @@ SOURCES = [
     for v in sorted({s.get("source", "sabha") for s in STORIES})
 ]
 
+# Curated high-level topics shown up front (the rest live behind "Browse all topics").
+_FEATURED_NAMES = [
+    "Faith and Belief", "Devotion and Prayer", "Seva and Service",
+    "Discipline and Focus", "Friendship", "Overcoming Fear", "Dealing with Failure",
+]
+FEATURED = [t for n in _FEATURED_NAMES for t in TOPICS if t["name"] == n]
+if len(FEATURED) < 5:  # fallback if names drift: pad with the first topics
+    _seen = {t["name"] for t in FEATURED}
+    FEATURED += [t for t in TOPICS if t["name"] not in _seen][: 7 - len(FEATURED)]
+
 GLOSSARY = _opt_json(GLOSSARY_FILE, {"terms": []}).get("terms", [])
 
 
@@ -211,7 +221,7 @@ def favicon():
 
 @app.route("/")
 def index():
-    return render_template("index.html", topics=TOPICS, sources=SOURCES)
+    return render_template("index.html", topics=TOPICS, featured=FEATURED, sources=SOURCES)
 
 
 @app.route("/ask", methods=["POST"])
